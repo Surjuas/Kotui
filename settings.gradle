@@ -1,0 +1,3 @@
+include ':kotui'
+include ':app'
+rootProject.name = "kotui"
