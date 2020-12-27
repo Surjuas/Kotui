@@ -4,13 +4,13 @@ import android.content.Context
 
 interface UiEntity<T> {
 
-    val properties: Set<Property<T, *>>
+    val attributes: Set<Attribute<T, *>>
         get() = emptySet()
 
-    fun build(context: Context): T
+    suspend fun build(context: Context): T
 
-    interface Property<T, R> {
+    interface Attribute<T, R> {
         val value: R
-        fun setValue(uiEntity: T)
+        suspend fun setValue(uiEntity: T)
     }
 }

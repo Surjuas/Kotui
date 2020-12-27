@@ -9,11 +9,11 @@ interface BasicUiEntity<V : View> : UiEntity<V> {
     fun createView(context: Context): V
 
     @CallSuper
-    override fun build(context: Context): V {
+    override suspend fun build(context: Context): V {
         val view = createView(context)
-        properties.forEach { it.setValue(view) }
+        attributes.forEach { it.setValue(view) }
         return view
     }
 
-    interface Property<V : View, T> : UiEntity.Property<V, T>
+    interface Attribute<V : View, T> : UiEntity.Attribute<V, T>
 }

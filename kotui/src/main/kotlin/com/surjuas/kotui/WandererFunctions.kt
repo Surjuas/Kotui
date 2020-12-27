@@ -19,18 +19,18 @@ fun interface OnDestroyObserver : DefaultLifecycleObserver {
     override fun onDestroy(owner: LifecycleOwner) = doOnDestroy()
 }
 
-fun <T : View> duplicateAwareProperties(
-    vararg properties: BasicUiEntity.Property<T, *>
-): Set<BasicUiEntity.Property<T, *>> {
-    properties
-        .groupingBy { property ->
-            property::class.superclasses.firstOrNull { it.isAbstract }
-            // TODO property must have one sealed class as superclass exception
+fun <T : View> duplicateAwareAttributes(
+    vararg attributes: BasicUiEntity.Attribute<T, *>
+): Set<BasicUiEntity.Attribute<T, *>> {
+    attributes
+        .groupingBy { attribute ->
+            attribute::class.superclasses.firstOrNull { it.isAbstract }
+            // TODO attribute must have one sealed class as superclass exception
         }
         .eachCount()
         .none { (_, count) -> count > 1 }
         .takeIf { it }
         ?: throw IllegalStateException()
     // TODO only one derivation of abstract class must exist inside property
-    return properties.toSet()
+    return attributes.toSet()
 }

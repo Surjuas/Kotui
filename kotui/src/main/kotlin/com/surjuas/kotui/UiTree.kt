@@ -3,12 +3,13 @@ package com.surjuas.kotui
 import android.content.Context
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
 class UiTree<T : BasicUiEntity<*>>(private val uiEntity: T) {
 
-    fun grow(context: Context) = uiEntity.build(context)
+    suspend fun grow(context: Context) = uiEntity.build(context)
 
     class Delegate(
         private val activity: ComponentActivity,
@@ -18,11 +19,11 @@ class UiTree<T : BasicUiEntity<*>>(private val uiEntity: T) {
         private var uiTree: UiTree<*>? = null
 
         init {
-            activity.lifecycle.addObserver(OnCreateObserver {
+            activity.lifecycleScope.launchWhenCreated {
                 val uiTree = UiTree(block())
-                this.uiTree = uiTree
+                this@Delegate.uiTree = uiTree
                 activity.setContentView(uiTree.grow(activity))
-            })
+            }
             activity.lifecycle.addObserver(OnDestroyObserver {
                 // TODO dispose uiTree
                 uiTree = null
@@ -36,13 +37,6 @@ class UiTree<T : BasicUiEntity<*>>(private val uiEntity: T) {
 
             if (!currentState.isAtLeast(Lifecycle.State.INITIALIZED))
                 throw IllegalUiTreeAccessException(currentState)
-
-            if (currentState.isAtLeast(Lifecycle.State.CREATED)) {
-                val uiTree = UiTree(block())
-                this.uiTree = uiTree
-                thisRef.setContentView(uiTree.grow(thisRef))
-                return uiTree
-            }
 
             throw IllegalUiTreeAccessException(currentState)
         }
